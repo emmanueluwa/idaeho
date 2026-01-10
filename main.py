@@ -1,19 +1,36 @@
-from fastapi import FastAPI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from typing import Annotated
+from sqlalchemy.orm import Session
+from fastapi import FastAPI, Depends
+from models.audio import Audios
 from pydantic import BaseModel
 
-app = FastAPI()
+from database.db import create_tables, get_db
+
+create_tables()
+
+app = FastAPI(
+    title="Idaeho",
+    description="play audio files",
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# middleware
+
+# routes
 
 
 @app.get("/")
-async def read_root():
-    return {"message": "obota world"}
+async def get_all_audio_files(db: Annotated[Session, Depends(get_db)]):
+    return db.query(Audios).all()
 
 
-class AudibookCreateModel(BaseModel):
-    title: str
-    author: str
+if __name__ == "__main__":
+    import uvicorn
 
-
-@app.post("/create_audiobook")
-async def create_audiobook(audiobook_data: AudibookCreateModel):
-    return {"title": audiobook_data.title, "author": audiobook_data.author}
+    uvicorn.run("main:app", host="0.0.0.0", port=0000, reload=True)
