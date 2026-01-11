@@ -27,6 +27,34 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrememnt=True)
 
+    email = Column(
+        String(255),
+        unique=True,
+        nullable=False,
+        index=True,
+        comment="user email address used for login",
+    )
+
+    password_hush = Column(
+        String(255), nullable=False, comment="bcrypt hashed password"
+    )
+
+    # metadata
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        comment="account created timestamp",
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+        comment="last update timestamp",
+    )
+
 
 class Audios(Base):
     __tablename__ = "audio_files"
