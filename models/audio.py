@@ -93,6 +93,11 @@ class User(Base):
 class AudioFile(Base):
     """
     audio file model stores audio file metadata and cloud storage references
+
+    design principles:
+        - store only metadata, not actual file data
+        - cloud storage handles actual MP3 files
+        - optimized for fast queries with proper indexing
     """
 
     __tablename__ = "audio_files"
@@ -173,6 +178,71 @@ class AudioFile(Base):
         return (
             f"<AudioFile(id={self.id}, title='{self.title}', author='{self.author}')>"
         )
+
+
+class Playlist(Base):
+    """
+    playlist model groups audio files into collections
+
+    design principles:
+        - many-to-Many relationship with AudioFile via PlaylistItem
+        - supports ordering of audio files within playlist
+    """
+
+    __tablename__ = "playlists"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="owner user ID - cascades on delete",
+    )
+
+    # playlist information
+    name = Column(String(255), nullable=False, comment="playlist name")
+
+    # metadata
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        comment="playlist creation timestamp",
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+        comment="last update timestamp",
+    )
+
+    # relationships
+    user = relationship("User", back_populates="playlists")
+
+    playlist_items = relationship(
+        "PlaylistItem",
+        back_populates="playlist",
+        cascade="all, delete-orphan",
+        order_by="PlaylistItem,order",
+    )
+
+    __table_args__ = (
+        Index("idx_playlist_user", "user_id"),  # users playlists
+        Index("idx_playlist_name", "name"),
+    )
+
+    def __repr__(self):
+        return f"<Playlist(id={self.id}, name='{self.name}')>"
+
+
+class PlaylistItem(Base):
+    """
+    playlist item model is a junction table for playlist and audiofile
+    """
 
 
 class Audios(Base):
