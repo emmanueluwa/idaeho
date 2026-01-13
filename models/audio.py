@@ -242,7 +242,48 @@ class Playlist(Base):
 class PlaylistItem(Base):
     """
     playlist item model is a junction table for playlist and audiofile
+
+    design principles:
+        - implements Many-to-Many relationship
+        - maintains order of audio files in playlist
+        - prevents duplicate entries in same playlist
     """
+
+    __tablename__ = "playlist_items"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+    playlist_id = Column(
+        Integer,
+        ForeignKey("playlists.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="playlist id - cascades on delete",
+    )
+
+    audio_id = Column(
+        Integer,
+        ForeignKey("audio_files.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="audio file ID - cascades on delete",
+    )
+
+    order = Column(
+        Integer, nullable=False, default=0, comment="position in playlist for sorting"
+    )
+
+    # metadata
+    added_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        comment="timestamp when added to playist",
+    )
+
+    # relationships
+    playlist = relationship("Playlist", back_populates="playlist_items")
+    audio_file = relationship("AudioFile", back_populates="playlist_items")
 
 
 class Audios(Base):
