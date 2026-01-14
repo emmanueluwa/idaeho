@@ -285,6 +285,16 @@ class PlaylistItem(Base):
     playlist = relationship("Playlist", back_populates="playlist_items")
     audio_file = relationship("AudioFile", back_populates="playlist_items")
 
+    __table_args__ = (
+        Index("idx_unique_playlist_audio", "playlist_id", "audio_id", unique=True),
+        Index("idx_playlist_items_playlist", "playlist_id", "order"),
+        # ensure order is non-negative
+        CheckConstraint('"order" >= 0', name="non_negative_order"),
+    )
+
+    def __repr__(self):
+        return f"<PlaylistItem(playlist_id={self.playlist_id}, audio_id={self.audio_id}, order={self.order})>"
+
 
 class Audios(Base):
     __tablename__ = "audio_files"
