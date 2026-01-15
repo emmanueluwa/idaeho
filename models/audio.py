@@ -7,19 +7,17 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
-    Boolean,
     BigInteger,
     Text,
     ForeignKey,
     DateTime,
-    Interval,
     CheckConstraint,
     Enum as SQLEnum,
     Index,
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from datetime import datetime, timedelta
+import enum
 
 
 class AudioCategory(enum.Enum):
@@ -39,7 +37,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrememnt=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     email = Column(
         String(255),
@@ -168,7 +166,7 @@ class AudioFile(Base):
         CheckConstraint("duration > 0", name="positive_duration"),
         CheckConstraint("file_size > 0", name="positive_file_size"),
         # composite indexes
-        Index("idx_audio_user_created", "user_id", "cerated_at"),
+        Index("idx_audio_user_created", "user_id", "created_at"),
         Index("idx_audio_user_category", "user_id", "category"),
         Index("idx_audio_author", "author"),
         Index("idx_audio_title", "title"),
@@ -294,15 +292,3 @@ class PlaylistItem(Base):
 
     def __repr__(self):
         return f"<PlaylistItem(playlist_id={self.playlist_id}, audio_id={self.audio_id}, order={self.order})>"
-
-
-class Audios(Base):
-    __tablename__ = "audio_files"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-    author = Column(String)
-    file_url = Column(String)
-    duration = Column(Interval)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())

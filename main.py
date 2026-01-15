@@ -5,12 +5,8 @@ load_dotenv()
 from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
-from models.audio import Audios
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
-from database.db import create_tables, get_db
-
-create_tables()
 
 app = FastAPI(
     title="Idaeho",
@@ -21,13 +17,21 @@ app = FastAPI(
 )
 
 # middleware
-
-# routes
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
-async def get_all_audio_files(db: Annotated[Session, Depends(get_db)]):
-    return db.query(Audios).all()
+async def root():
+    """
+    health check
+    """
+    return {"status": "online", "message": "idaeho api is running", "version": "0.1.0"}
 
 
 if __name__ == "__main__":
