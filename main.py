@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
+from routes import auth, audio
+
 
 app = FastAPI(
     title="Idaeho",
@@ -19,14 +21,18 @@ app = FastAPI(
 # middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8080", "https://customdomain.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# routers
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(audio.router, prefix="/api/audio", tags=["Audio"])
 
-@app.get("/")
+
+@app.get("/", tags=["Health"])
 async def root():
     """
     health check
@@ -37,4 +43,4 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=0000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
