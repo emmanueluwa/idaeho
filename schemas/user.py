@@ -69,8 +69,34 @@ class UserResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "email": "user@example.com",
+                "email": "me@email.com",
                 "created_at": "2025-01-15T10:30:00Z",
                 "updated_at": "2025-01-15T10:30:00Z",
+            }
+        }
+
+
+class UserWithTokenResponse:
+    """
+    reseponse after registration, user and token
+    """
+
+    useer: UserResponse
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user": {
+                    "id": 1,
+                    "email": "me@mail.com",
+                    "created_at": "2025-01-15T10:30:00Z",
+                    "updated_at": "2025-01-15T10:30:00Z",
+                },
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer",
+                "expires_in": 1800,
             }
         }
