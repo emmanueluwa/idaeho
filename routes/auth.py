@@ -101,3 +101,15 @@ def login(credentials: UserLoginRequest, db: Annotated[Session, Depends(get_db)]
 )
 def get_current_user_profile(current_user: CurrentUser):
     return UserResponse.model_validate(current_user)
+
+
+def logout(current_user: CurrentUser):
+    """
+    jwt tokens are stateless, logout hapens client-side by deleting token
+    this endpoint exists for consistencey and to verify the token is valid before logging out
+    """
+
+    return {
+        "message": "successfully logged out",
+        "detail": "please delete the access token from client storage",
+    }
