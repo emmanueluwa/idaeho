@@ -29,6 +29,17 @@ class UserRegisterRequest(BaseModel):
         }
 
 
+class UserLoginRequest(BaseModel):
+    email: EmailStr = Field(..., description="user email address")
+
+    password: str = Field(..., description="user password")
+
+    class Config:
+        json_schema_extra = {
+            "example": {"email": "me@mail.com", "password": "passwording!"}
+        }
+
+
 class TokenResponse(BaseModel):
     """
     response after successful login
@@ -52,7 +63,7 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """
-    user data response should never include password
+    user data response never includes password
     """
 
     id: int = Field(..., description="user id")

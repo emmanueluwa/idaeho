@@ -4,13 +4,20 @@ auth routes for registration, login and user management
 
 from typing import Annotated
 from fastapi import APIRouter, status, Depends, HTTPException
-from schemas.user import UserRegisterRequest, UserResponse, UserWithTokenResponse
+from schemas.user import (
+    TokenResponse,
+    UserLoginRequest,
+    UserRegisterRequest,
+    UserResponse,
+    UserWithTokenResponse,
+)
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from database.db import get_db
 from models.audio import User
-from utils.auth import hash_password
+from utils.auth import hash_password, verify_password
+from utils.dependencies import CurrentUser
 from utils.jwt import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 
 router = APIRouter()
@@ -53,3 +60,44 @@ def register(user_data: UserRegisterRequest, db: Annotated[Session, Depends(get_
         token_type="bearer",
         expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # convert to seconds
     )
+
+
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="login user",
+    description="authenticate user and return access token",
+)
+def login(credentials: UserLoginRequest, db: Annotated[Session, Depends(get_db)]):
+    user = db.query(User).filter(User.email == credentials.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not verify_password(credentials.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    )
+
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+    summary="get current user",
+    description="get the currently authenticated user profile",
+)
+def get_current_user_profile(current_user: CurrentUser):
+    return UserResponse.model_validate(current_user)
