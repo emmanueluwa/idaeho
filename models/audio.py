@@ -47,7 +47,7 @@ class User(Base):
         comment="user email address used for login",
     )
 
-    password_hush = Column(
+    password_hash = Column(
         String(255), nullable=False, comment="bcrypt hashed password"
     )
 
@@ -225,7 +225,7 @@ class Playlist(Base):
         "PlaylistItem",
         back_populates="playlist",
         cascade="all, delete-orphan",
-        order_by="PlaylistItem,order",
+        order_by="PlaylistItem.order",
     )
 
     __table_args__ = (

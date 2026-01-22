@@ -16,6 +16,7 @@ python-multipart = "^0.0.21"
 python-jose = "^3.5.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 mutagen = "^1.47.0"
+argon2-cffi = "^25.1.0"
 
 
 [build-system]

@@ -1,8 +1,8 @@
-"""Initial chema
+"""Initial schema with passowrd_hash
 
-Revision ID: efba85ee1334
+Revision ID: 5fae8870072a
 Revises: 
-Create Date: 2026-01-15 18:44:04.910911
+Create Date: 2026-01-22 07:56:08.903150
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'efba85ee1334'
+revision: str = '5fae8870072a'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table('users',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False, comment='user email address used for login'),
-    sa.Column('password_hush', sa.String(length=255), nullable=False, comment='bcrypt hashed password'),
+    sa.Column('password_hash', sa.String(length=255), nullable=False, comment='bcrypt hashed password'),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False, comment='account created timestamp'),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False, comment='last update timestamp'),
     sa.CheckConstraint("email ~* '^[A-Za-z0-9._%%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$'", name='valid_email_format'),
