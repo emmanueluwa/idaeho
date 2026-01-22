@@ -49,7 +49,7 @@ def register(user_data: UserRegisterRequest, db: Annotated[Session, Depends(get_
     except IntegrityError:
         db.rollback()
         raise HTTPException(
-            satus_code=status.HTTP_400_BAD_REQUEST, detail="email already registered"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="email already registered"
         )
 
     access_token = create_access_token(data={"sub": str(new_user.id)})
@@ -103,6 +103,7 @@ def get_current_user_profile(current_user: CurrentUser):
     return UserResponse.model_validate(current_user)
 
 
+@router.post("/logout", response_model=dict, summary="logout user")
 def logout(current_user: CurrentUser):
     """
     jwt tokens are stateless, logout hapens client-side by deleting token

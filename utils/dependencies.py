@@ -3,8 +3,8 @@ fastapi dependencies for auth
 """
 
 from typing import Annotated
-from fastapi import Depends, HttpException, status
-from fastapi.security import HttpAuthorizationCredentials
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,7 @@ security = HTTPBearer()
 
 
 def get_current_user(
-    credentials: Annotated[HttpAuthorizationCredentials, Depends(security)],
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
     """
@@ -37,7 +37,7 @@ def get_current_user(
 
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
-        raise HttpException(
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="user not found",
             headers={"WWW-Authenticate": "Bearee"},

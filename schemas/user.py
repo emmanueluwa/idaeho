@@ -23,21 +23,11 @@ class UserRegisterRequest(BaseModel):
 
         return v
 
-    class Config:
-        json_schema_extra = {
-            "example": {"email": "me@mail.com", "passoword": "passwording!"}
-        }
-
 
 class UserLoginRequest(BaseModel):
     email: EmailStr = Field(..., description="user email address")
 
     password: str = Field(..., description="user password")
-
-    class Config:
-        json_schema_extra = {
-            "example": {"email": "me@mail.com", "password": "passwording!"}
-        }
 
 
 class TokenResponse(BaseModel):
@@ -50,15 +40,6 @@ class TokenResponse(BaseModel):
     token_type: str = Field(default="bearer", description="token type always bearer")
 
     expires_in: int = Field(..., description="token expiration time in seconds")
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer",
-                "expires_in": 1800,
-            }
-        }
 
 
 class UserResponse(BaseModel):
@@ -75,39 +56,16 @@ class UserResponse(BaseModel):
     updated_at: datetime = Field(..., description="last update time")
 
     class Config:
-        from_attributes = True
         # allows db_user.id, db_user.name
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "email": "me@email.com",
-                "created_at": "2025-01-15T10:30:00Z",
-                "updated_at": "2025-01-15T10:30:00Z",
-            }
-        }
+        from_attributes = True
 
 
-class UserWithTokenResponse:
+class UserWithTokenResponse(BaseModel):
     """
     reseponse after registration, user and token
     """
 
-    useer: UserResponse
+    user: UserResponse
     access_token: str
     token_type: str = "bearer"
     expires_in: int
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "user": {
-                    "id": 1,
-                    "email": "me@mail.com",
-                    "created_at": "2025-01-15T10:30:00Z",
-                    "updated_at": "2025-01-15T10:30:00Z",
-                },
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer",
-                "expires_in": 1800,
-            }
-        }
