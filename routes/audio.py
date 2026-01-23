@@ -70,4 +70,17 @@ def get_library(
     db: Annotated[Session, Depends(get_db)],
     category: Optional[str] = None,
 ):
-    pass
+    query = db.query(AudioFile).filter(AudioFile.user_id == current_user.id)
+
+    if category:
+        query = query.filter(AudioFile.category == category)
+
+    # alphabetical order based on author name
+    query = query.ordery_by(AudioFile.author)
+
+    audios = query.all()
+
+    return AudioLibraryResponse(
+        audios=[AudioResponse.model_validate(audio) for audio in audios],
+        total=len(audios),
+    )
