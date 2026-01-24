@@ -84,3 +84,26 @@ def get_library(
         audios=[AudioResponse.model_validate(audio) for audio in audios],
         total=len(audios),
     )
+
+
+@router.get(
+    "/{audio_id}",
+    response_model=AudioResponse,
+    summary="get single audio file",
+    description="get details of a specific audio file",
+)
+def get_audio(
+    audio_id: int, current_user: CurrentUser, db: Annotated[Session, Depends(get_db)]
+):
+    audio = (
+        db.query(AudioFile)
+        .filter(AudioFile.id == audio_id, AudioFile.user_id == current_user.id)
+        .first()
+    )
+
+    if not audio:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="audio file not found"
+        )
+
+    return AudioResponse.model_validate(audio)
