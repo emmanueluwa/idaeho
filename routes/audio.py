@@ -5,7 +5,12 @@ from database.db import get_db
 from fastapi import APIRouter, status, Depends, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from models.audio import AudioFile, UploadFile
-from schemas.audio import AudioLibraryResponse, AudioResponse, AudioUpdateRequest
+from schemas.audio import (
+    AudioDeleteResponse,
+    AudioLibraryResponse,
+    AudioResponse,
+    AudioUpdateRequest,
+)
 from utils.dependencies import CurrentUser
 from utils.storage import delete_audio_file, save_audio_file, validate_audio_file
 
@@ -148,3 +153,40 @@ def update_audio(
         )
 
     return AudioResponse.model_validate(audio)
+
+
+@router.delete(
+    "/{audio_id}",
+    response_model=AudioDeleteResponse,
+    summary="delete audio file",
+    description="delete audio file and its metadata",
+)
+def delete_audio(
+    audio_id: int, current_user: CurrentUser, db: Annotated[Session, Depends(get_db)]
+):
+    """
+    delete file from storage and metadat from db
+    """
+    audio = (
+        db.query(AudioFile)
+        .filter(AudioFile.id == audio_id, AudioFile.user_id == current_user.id)
+        .first()
+    )
+    if not audio:
+        raise HTTPException(
+            status_code=status.HTTP_NOT_FOUND, detail="audio file not found"
+        )
+
+    delete_audio_file(audio.file_url)
+
+    try:
+        db.delete(audio)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"failed to delete audio: {str(e)}",
+        )
+
+    return AudioDeleteResponse(id=audio_id, message="audio file deleted succesfully")
