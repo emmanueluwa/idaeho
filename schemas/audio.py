@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, HttpUrl, field_validator
 from enum import Enum
 
 
-class AudioCategory(str, Enunm):
+class AudioCategory(str, Enum):
     """Enum for audio catgories"""
 
     QURAN = "quran"
@@ -64,7 +64,7 @@ class AudioUpdateRequest(BaseModel):
         """Ensure strings are not just whitespace"""
         if v is not None and (not v or not v.strip()):
             raise ValueError("Field cannot be empty or whitespace")
-        return v.strip if v else None
+        return v.strip() if v else None
 
 
 class AudioResponse(BaseModel):

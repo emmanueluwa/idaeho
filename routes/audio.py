@@ -1,10 +1,9 @@
-from http.client import HTTPException
 from typing import Annotated, Optional
 
 from database.db import get_db
-from fastapi import APIRouter, status, Depends, UploadFile, File, Form
+from fastapi import APIRouter, status, Depends, UploadFile, File, Form, HTTPException
 from sqlalchemy.orm import Session
-from models.audio import AudioFile, UploadFile
+from models.audio import AudioFile
 from schemas.audio import (
     AudioDeleteResponse,
     AudioLibraryResponse,
@@ -36,12 +35,14 @@ async def upload_audio(
 
     file_url, duration, file_size = save_audio_file(file, current_user.id)
 
+    category_upper = category.upper()
+
     # create db record
     new_audio = AudioFile(
         user_id=current_user.id,
         title=title,
         author=author,
-        category=category,
+        category=category_upper,
         file_url=file_url,
         duration=duration,
         file_size=file_size,
@@ -81,7 +82,7 @@ def get_library(
         query = query.filter(AudioFile.category == category)
 
     # alphabetical order based on author name
-    query = query.ordery_by(AudioFile.author)
+    query = query.order_by(AudioFile.author)
 
     audios = query.all()
 

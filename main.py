@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import auth
+from routes import audio, auth
 from database.db import engine
 
 
@@ -42,7 +42,7 @@ app.add_middleware(
 
 # routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
-# app.include_router(audio.router, prefix="/api/audio", tags=["Audio"])
+app.include_router(audio.router, prefix="/api/audio", tags=["Audio"])
 
 
 @app.get("/", tags=["Health"])
