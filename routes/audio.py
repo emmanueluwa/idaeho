@@ -5,7 +5,7 @@ from database.db import get_db
 from fastapi import APIRouter, status, Depends, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from models.audio import AudioFile, UploadFile
-from schemas.audio import AudioLibraryResponse, AudioResponse
+from schemas.audio import AudioLibraryResponse, AudioResponse, AudioUpdateRequest
 from utils.dependencies import CurrentUser
 from utils.storage import delete_audio_file, save_audio_file, validate_audio_file
 
@@ -104,6 +104,47 @@ def get_audio(
     if not audio:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="audio file not found"
+        )
+
+    return AudioResponse.model_validate(audio)
+
+
+@router.put(
+    "/{audio_id}",
+    response_model=AudioResponse,
+    summary="update audio metadata",
+    description="update title or author",
+)
+def update_audio(
+    audio_id: int,
+    audio_data: AudioUpdateRequest,
+    current_user: CurrentUser,
+    db: Annotated[Session, Depends(get_db)],
+):
+    audio = (
+        db.query(AudioFile)
+        .filter(AudioFile.id == audio_id, AudioFile.user_id == current_user.id)
+        .first()
+    )
+
+    if not audio:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="audio file not found"
+        )
+
+    # update provided fields
+    update_data = audio_data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(audio, field, value)
+
+    try:
+        db.commit()
+        db.refresh(audio)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"failed to update audio: {str(e)}",
         )
 
     return AudioResponse.model_validate(audio)
