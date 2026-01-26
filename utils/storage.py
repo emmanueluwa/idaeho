@@ -5,11 +5,29 @@ TODO: S3 storage
 
 import os
 import shutil
+import boto3
 from pathlib import Path
 from typing import Optional
 from fastapi import UploadFile, HTTPException, status
 import uuid
 from mutagen.mp3 import MP3
+
+# AWS Configuration
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.environ.get("AWS_REGION", "eu-north-1")
+AWS_S3_BUCKET = os.environ.get("AWS_S3_BUCKET")
+
+# validate aws config
+if not all([AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET]):
+    raise RuntimeError("aws credentials not configured. check .env file")
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key=AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION,
+)
 
 UPLOAD_DIR = Path("uploads/audio")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
