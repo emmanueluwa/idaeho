@@ -20,12 +20,6 @@ from sqlalchemy.orm import relationship
 import enum
 
 
-class AudioCategory(enum.Enum):
-    QURAN = "quran"
-    LECTURE = "lecture"
-    REMINDER = "reminder"
-
-
 class User(Base):
     """
     user model stores auth and profile data
@@ -121,15 +115,7 @@ class AudioFile(Base):
 
     author = Column(String(255), nullable=False, index=True, comment="author name")
 
-    category = Column(
-        SQLEnum(AudioCategory),
-        nullable=False,
-        default=AudioCategory.QURAN,
-        index=True,
-        comment="audio category type",
-    )
-
-    description = Column(Text, nullable=True, comment="optinal audio descripton")
+    description = Column(Text, nullable=True, comment="optional audio descripton")
 
     # file information
     file_url = Column(Text, nullable=False, comment="S3 cloud storage url")
@@ -167,7 +153,6 @@ class AudioFile(Base):
         CheckConstraint("file_size > 0", name="positive_file_size"),
         # composite indexes
         Index("idx_audio_user_created", "user_id", "created_at"),
-        Index("idx_audio_user_category", "user_id", "category"),
         Index("idx_audio_author", "author"),
         Index("idx_audio_title", "title"),
     )
