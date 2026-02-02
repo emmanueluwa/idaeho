@@ -1,3 +1,14 @@
+"""
+Production Optimization TODO:
+
+Add CloudFront CDN for faster global delivery
+Implement presigned URLs for secure access
+Set up S3 lifecycle policies for cost optimization
+Add CloudWatch monitoring for upload failures
+Implement multipart upload for files >5GB
+
+"""
+
 import os
 import shutil
 import boto3
