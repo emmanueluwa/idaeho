@@ -1,8 +1,11 @@
 """
 Production Optimization TODO:
 
+s3:
+    Add bucket versioning
+    Enable access logging
+
 Add CloudFront CDN for faster global delivery
-Implement presigned URLs for secure access
 Set up S3 lifecycle policies for cost optimization
 Add CloudWatch monitoring for upload failures
 Implement multipart upload for files >5GB

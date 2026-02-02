@@ -146,6 +146,47 @@ def get_stream_url(
         "audio_id": audio_id,
         "title": audio.title,
         "author": audio.author,
+        "duation": audio.duration,
+        "file_size": audio.file_size,
+    }
+
+
+@router.get(
+    "/{audio_id}/download",
+    summary="get download url",
+    description="get temp presigned url for downloading audio",
+)
+def get_stream_url(
+    audio_id: int, current_user: CurrentUser, db: Annotated[Session, Depends(get_db)]
+):
+    """
+    get presigned url for downloading audio
+    """
+    audio = (
+        db.query(AudioFile)
+        .filter(AudioFile.id == audio_id, AudioFile.user_id == current_user.id)
+        .first()
+    )
+    if not audio:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="audio file not found"
+        )
+
+    from utils.storage import generate_presigned_url
+
+    download_url = generate_presigned_url(audio.file_url, expiration=86400)
+
+    safe_filename = f"{audio.title.replace("/", "-")}.mp3"
+
+    return {
+        "download_url": download_url,
+        "expires_in": 86400,
+        "audio_id": audio.id,
+        "filename": safe_filename,
+        "title": audio.title,
+        "author": audio.author,
+        "duration": audio.duration,
+        "file_size": audio.file_size,
     }
 
 
