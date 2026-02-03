@@ -13,6 +13,9 @@ class PlaylistUpdate(BaseModel):
 
 class PlaylistItemAdd(BaseModel):
     audio_id: int = Field(..., description="audio file id to add")
+    position: Optional[int] = Field(
+        None, ge=0, description="position in playlist (optional)"
+    )
 
 
 class AudioInPlaylist(BaseModel):

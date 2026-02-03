@@ -33,7 +33,6 @@ def create_playlist(
     new_playlist = Playlist(
         user_id=current_user.id,
         name=playlist_data.name,
-        description=playlist_data.description,
     )
 
     try:

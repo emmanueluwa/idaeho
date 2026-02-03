@@ -25,10 +25,6 @@ class AudioUploadRequest(BaseModel):
 
     author: str = Field(..., min_length=1, max_length=255, description="name of author")
 
-    category: AudioCategory = Field(
-        default=AudioCategory.QURAN, description="audio category type"
-    )
-
     @field_validator("title", "author")
     @classmethod
     def validate_not_empty(cls, v: str) -> str:
@@ -42,7 +38,6 @@ class AudioUploadRequest(BaseModel):
             "example": {
                 "title": "Surah Al-Baqarah",
                 "author": "Sheikh Mustafa Al-Shaybani",
-                "category": "quran",
             }
         }
 
@@ -55,8 +50,6 @@ class AudioUpdateRequest(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=255)
 
     author: Optional[str] = Field(None, min_length=1, max_length=255)
-
-    category: Optional[AudioCategory] = None
 
     @field_validator("title", "author")
     @classmethod
@@ -80,8 +73,6 @@ class AudioResponse(BaseModel):
 
     author: str = Field(..., description="name of author")
 
-    category: str = Field(..., description="audio category")
-
     file_url: str = Field(..., description="cloud storage url for audio file")
 
     duration: Optional[int] = Field(None, description="duration in seconds", ge=0)
@@ -100,7 +91,6 @@ class AudioResponse(BaseModel):
                 "user_id": 123,
                 "title": "Surah Al-Baqarah",
                 "author": "Sheikh Mustafa Al-Shaybani",
-                "category": "quran",
                 "file_url": "https://storage.example.com/audio/abc123.mp3",
                 "duration": 3600,
                 "file_size": 52428800,
@@ -130,7 +120,6 @@ class AudioLibraryResponse(BaseModel):
                         "user_id": 123,
                         "title": "Surah Al-Baqarah",
                         "author": "Sheikh Mustafa Al-Shaybani",
-                        "category": "quran",
                         "file_url": "https://storage.example.com/audio/abc123.mp3",
                         "duration": 3600,
                         "file_size": 52428800,
@@ -142,7 +131,6 @@ class AudioLibraryResponse(BaseModel):
                         "user_id": 123,
                         "title": "Patience in Hardship",
                         "author": "Abdul Rahman Hassan - AMAU",
-                        "category": "lecture",
                         "file_url": "https://storage.example.com/audio/def456.mp3",
                         "duration": 2700,
                         "file_size": 41943040,

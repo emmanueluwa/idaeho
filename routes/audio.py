@@ -70,12 +70,8 @@ async def upload_audio(
 def get_library(
     current_user: CurrentUser,
     db: Annotated[Session, Depends(get_db)],
-    category: Optional[str] = None,
 ):
     query = db.query(AudioFile).filter(AudioFile.user_id == current_user.id)
-
-    if category:
-        query = query.filter(AudioFile.category == category)
 
     # alphabetical order based on author name
     query = query.order_by(AudioFile.author)
