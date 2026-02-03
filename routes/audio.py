@@ -29,20 +29,16 @@ async def upload_audio(
     file: UploadFile = File(..., description="MP3 audio file"),
     title: str = Form(..., description="audio title"),
     author: str = Form(..., description="author name"),
-    category: str = Form(default="quran", description="audio category"),
 ):
     validate_audio_file(file)
 
     file_url, duration, file_size = save_audio_file(file, current_user.id)
-
-    category_upper = category.upper()
 
     # create db record
     new_audio = AudioFile(
         user_id=current_user.id,
         title=title,
         author=author,
-        category=category_upper,
         file_url=file_url,
         duration=duration,
         file_size=file_size,
